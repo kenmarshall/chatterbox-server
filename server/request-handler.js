@@ -13,6 +13,25 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var requestHandler = function(request, response) {
+  //Moved this here to make Pomander Happy
+  var defaultCorsHeaders = {
+    // These headers will allow Cross-Origin Resource Sharing (CORS).
+    // This code allows this server to talk to websites that
+    // are on different domains, for instance, your chat client.
+    //
+    // Your chat client is running from a url like file://your/chat/client/index.html,
+    // which is considered a different domain.
+    //
+    // Another way to get around this restriction is to serve you chat
+    // client from this domain by setting up static file serving.
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
+  };
+
+
+
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -55,19 +74,8 @@ var requestHandler = function(request, response) {
   response.end('Hello, World!');
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
+
+
+
+module.exports = requestHandler;
 
