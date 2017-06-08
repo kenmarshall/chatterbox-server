@@ -101,6 +101,74 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Should respond with messages that have a valid createdAt property', function() {
+    var stubMsg = {
+      username: 'Jono',
+      message: 'Do my bidding!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+      // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[0].createdAt).to.exist;
+
+    expect(res._ended).to.equal(true);
+  });
+
+  it('Should respond messages in LIFO order', function() {
+    var stubMsg = {
+      username: 'Jono',
+      message: 'Do my bidding!'
+    };
+
+    var stubMsg2 = {
+      username: 'Doug',
+      message: 'Software engineer!'
+    };
+
+    var stubMsg3 = {
+      username: 'Ken',
+      message: 'Software engineer 2!'
+    };
+
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var req2 = new stubs.request('/classes/messages', 'POST', stubMsg2);
+    var req3 = new stubs.request('/classes/messages', 'POST', stubMsg3);
+
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    handler.requestHandler(req2, res);
+    handler.requestHandler(req3, res);
+
+    expect(res._responseCode).to.equal(201);
+
+      // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[0].username).to.equal('Ken');
+    expect(messages[0].message).to.equal('Software engineer 2!');
+    expect(res._ended).to.equal(true);
+  });
+
 
   it('Should 404 when asked for a nonexistent file', function() {
     var req = new stubs.request('/arglebargle', 'GET');
@@ -115,5 +183,18 @@ describe('Node Server Request Listener Function', function() {
         expect(res._responseCode).to.equal(404);
       });
   });
+
+  it('Should 400 when passed an empty object', function() {
+    var stubMsg = {};
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(400);
+
+  });
+
+
 
 });
