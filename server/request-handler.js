@@ -16,7 +16,7 @@ var messages = [];
 
 var handlePOST = function(request,cb) {
   var requestBody = '';
-    request.on('data', function(data) {
+  request.on('data', function(data) {
     requestBody += data;
   });
 
@@ -153,5 +153,5 @@ var requestHandler = function(request, response) {
 };
 
 
-module.exports = requestHandler;
+module.exports.requestHandler = requestHandler;
 
