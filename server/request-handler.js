@@ -13,6 +13,51 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var requestHandler = function(request, response) {
+  /*
+    request: Event object
+      -can be used to access response status, headers, data
+
+      .headers: Headers object
+        .accept string
+        .accept-encoding e.g. "gzip, deflate, sdch, br"
+        .accept-language
+        .connection(is a Socket)
+        .host (IP of host)
+        .upgrade-insecure-requests: (INT)
+        .user-agent- loks like browser info
+      .client (is a socket)
+      .complete (boolean)
+      .rawHeaders- an array of headers unconditioned
+      .statusCode
+      .statusMessage
+      .upgrade (boolean)
+      .url
+
+  */
+
+  /*
+    response: Event Object
+      .chunkedEncoding (boolean)
+      .connection (is a Socket)
+      .domain
+      .finished (boolean)
+      .output (array)
+      .outputCallbacks (array)
+      .outputEncodings (array)
+      .outputSize (= 0 in our test)
+      .sendDate (boolean)
+      .shouldKeepAlive (boolean)
+      .socket (socket)
+      .useChunkedEncodingByDefault (boolean)
+      .writable (boolean, true in our test)
+  */
+
+
+
+
+
+  var messages = [];
+
   //Moved this here to make Pomander Happy
   var defaultCorsHeaders = {
     // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -30,7 +75,25 @@ var requestHandler = function(request, response) {
     'access-control-max-age': 10 // Seconds.
   };
 
+  // The outgoing status.
+  var statusCode = 200;
 
+  // See the note below about CORS headers.
+  var headers = defaultCorsHeaders;
+
+  if (request.method === 'GET') {
+    //handle get
+
+  } else if (request.method === 'POST') {
+    //handle post
+    console.log('===== response ====', request._postData);
+    if (request.url === '/classes/messages') {
+      messages.push(response._data);
+      statusCode = 201;
+    }
+
+  }
+  //console.log(request);
 
   // Request and Response come from node's http module.
   //
@@ -48,17 +111,13 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  // The outgoing status.
-  var statusCode = 200;
 
-  // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -71,7 +130,11 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  response.end(JSON.stringify({
+    message: 'Hello, World!',
+    results: messages
+
+  }));
 };
 
 
